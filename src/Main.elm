@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Html exposing (div, p, text)
+import Html exposing (Html, div, p, text)
 
 main : Html msg
 main =
