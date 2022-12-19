@@ -6,8 +6,8 @@ module Pages.Home exposing (Model, Msg, init, update, view)
 import Browser.Navigation as Nav exposing (Key)
 import Html exposing (Html, button, div, h2, h3, p, text)
 import Html.Events exposing (onClick)
-import Url exposing (Url)
 import Route exposing (Route(..), pushUrl)
+import Url exposing (Url)
 
 
 
@@ -52,4 +52,4 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GotoLevelsPage ->
-            (model, Route.pushUrl LevelViewRoute model.navKey )
+            ( model, Route.pushUrl LevelViewRoute model.navKey )
