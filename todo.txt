@@ -1,0 +1,32 @@
+todo :
+
+    - Create Pages
+        - Create a home page
+            - Add some instructions on how to play the game
+        - Create a levels select page
+            - Create a level type
+            - Store some levels in json format
+            - Create a decoder to convert json files into level types
+            - Put that on a server or something
+        - Create a play page
+            - Create type that can log player actions
+            - recognise the win and take the player to the next level after
+
+    - Routing 
+        - Route type and module for parsing urls
+        - Logic in main function for routing
+
+    - Storage
+        - Save player progress in browser localstorage
+        - Load player progress from browser localstorage
+
+    - Testing
+        - Write a test suite that tests the following :
+            - All levels have solutions
+            - Custom types work as intended
+            - Will think of more later
+
+    - css
+        - Find out again how to style pages in elm, then  write this part of
+        the todo
+
