@@ -6,7 +6,7 @@
 module Route exposing (..)
 
 import Url exposing (Url)
-import Url.Parser exposing (Parser, map, s, oneOf, parse, top)
+import Url.Parser exposing (Parser, map, oneOf, parse, s, top)
 
 
 
@@ -14,19 +14,20 @@ import Url.Parser exposing (Parser, map, s, oneOf, parse, top)
 
 
 type Route
-    = NotFoundPage
-    | HomePage
-    | LevelViewPage
+    = NotFoundRoute
+    | HomeRoute
+    | LevelViewRoute
+
 
 
 -- route parser
 
 
-routeParser : Parser ( Route -> a ) a
+routeParser : Parser (Route -> a) a
 routeParser =
     oneOf
-        [ map HomePage top
-        , map LevelViewPage (s "levels")
+        [ map HomeRoute top
+        , map LevelViewRoute (s "levels")
         ]
 
 
@@ -36,5 +37,5 @@ routeParser =
 
 urlToRoute : Url -> Route
 urlToRoute url =
-    Maybe.withDefault NotFoundPage <|
+    Maybe.withDefault NotFoundRoute <|
         parse routeParser url
