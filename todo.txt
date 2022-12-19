@@ -1,8 +1,8 @@
 todo :
 
-    - Create Pages
-        - Create a home page
-            - Add some instructions on how to play the game
+    + Create Pages
+        + Create a home page
+            + Add some instructions on how to play the game
         - Create a levels select page
             - Create a level type
             - Store some levels in json format
@@ -12,9 +12,9 @@ todo :
             - Create type that can log player actions
             - recognise the win and take the player to the next level after
 
-    - Routing 
-        - Route type and module for parsing urls
-        - Logic in main function for routing
+    + Routing 
+        + Route type and module for parsing urls
+        + Logic in main function for routing
 
     - Storage
         - Save player progress in browser localstorage
