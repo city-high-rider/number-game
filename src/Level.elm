@@ -1,7 +1,7 @@
 -- this is the module for the level type and its associated functions
 
 
-module Level exposing (Level, levelIdToString, levelsDecoder)
+module Level exposing (Level, isLevelOperationsNotEmpty, levelIdToString, levelsDecoder)
 
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (optional, required)
@@ -14,9 +14,9 @@ type alias Level =
     , goalNumber : Float
     , minMovesToPass : Int
 
-    -- level operators are the things that you can do to your number in the
+    -- level operations are the things that you can do to your number in the
     -- level, like incrementing or decrementing it.
-    , availableOperations : List Operation
+    , operations : List Operation
     }
 
 
@@ -31,6 +31,12 @@ type alias Level =
 type Operation
     = FloatFunction (Float -> Float)
     | IntFunction (Int -> Int)
+
+
+isLevelOperationsNotEmpty : Level -> Bool
+isLevelOperationsNotEmpty level =
+    not <|
+        List.isEmpty level.operations
 
 
 
@@ -83,11 +89,11 @@ levelIdDecoder =
 
 operationsDecoder : Decoder (List Operation)
 operationsDecoder =
-    -- Our json for the levels will have a list called operators, that 
+    -- Our json for the levels will have a list called operators, that
     -- contains a bunch of strings which correspond to operations we can
-    -- perform on our number. Unfortunately, we cannot guarantee that 
-    -- the strings in that json list will match to an operation. 
-    -- (see stringToOperation.) Therefore we will have a list of
+    -- perform on our number. Unfortunately, we cannot guarantee that
+    -- the strings in that json list will match to an operation.
+    -- (see string To Operation) Therefore we will have a list of
     -- "Maybe Operation", and we must filter out the Nothings.
     -- that is (in theory) what this decoder should do.
     Decode.map (List.filterMap stringToOperation) (Decode.list Decode.string)
