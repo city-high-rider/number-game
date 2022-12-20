@@ -25,6 +25,7 @@ type alias Level =
 -- both ints or floats, like incrementing, or only with ints, like a
 -- factorial function. We also might want to add some function later with
 -- two inputs or something.
+-- todo : look into using the "number" type (https://package.elm-lang.org/packages/elm/core/latest/Basics#+)
 
 
 type Operation
