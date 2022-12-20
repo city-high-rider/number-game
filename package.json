@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/city-high-rider/number-game/issues"
   },
-  "homepage": "https://github.com/city-high-rider/number-game#readme"
+  "homepage": "https://github.com/city-high-rider/number-game#readme",
+  "dependencies": {
+    "json-server": "^0.17.1"
+  }
 }
