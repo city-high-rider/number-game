@@ -1,0 +1,25 @@
+{
+    "levels": [
+        {
+            "id": 1,
+            "difficulty": "easy",
+            "startNumber": 0,
+            "endNumber": 5,
+            "minMovesToPass": 5,
+            "operators": [
+                "increment"
+            ]
+        },
+        {
+            "id": 2,
+            "difficulty": "easy",
+            "startNumber": 1,
+            "endNumber": 6,
+            "minMovesToPass": 3,
+            "operators": [
+                "increment",
+                "double"
+            ]
+        }
+    ]
+}
