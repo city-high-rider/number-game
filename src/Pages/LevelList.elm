@@ -5,7 +5,7 @@ import Html exposing (Html, a, button, div, h3, p, table, td, text, th, tr)
 import Html.Attributes exposing (href)
 import Html.Events exposing (onClick)
 import Http
-import Level exposing (Level, levelIdToString, levelsDecoder)
+import Level exposing (Level, isLevelOperationsNotEmpty, levelIdToString, levelsDecoder)
 import RemoteData exposing (RemoteData(..), WebData)
 
 
@@ -59,9 +59,16 @@ viewLevels levels =
                 [ th [] [ text "Level ID" ]
                 , th [] [ text "Difficulty" ]
                 ]
+
+        -- if you check the operations decoder in src/Level, you will see
+        -- that it's possible for a level's operation list to be empty,
+        -- making it practically unbeatable. We want to filter out
+        -- any levels like this
+        filteredLevels =
+            List.filter isLevelOperationsNotEmpty levels
     in
     table []
-        (tableHeader :: List.map levelToTableRow levels)
+        (tableHeader :: List.map levelToTableRow filteredLevels)
 
 
 levelToTableRow : Level -> Html Msg
