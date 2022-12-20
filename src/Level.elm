@@ -6,7 +6,7 @@ module Level exposing (Level, levelIdToString)
 
 type alias Level =
     { id : LevelId
-    , difficulty : LevelDifficulty
+    , difficulty : String
     , startNumber : Float
     , goalNumber : Float
     , minMovesToPass : Int
@@ -28,18 +28,9 @@ type LevelId
 
 
 
--- this type is solely for display purposes
-
-
-type LevelDifficulty
-    = Easy
-    | Normal
-    | Hard
-
-
 -- level Id to string function, used for redirecting the player to a url
+
+
 levelIdToString : LevelId -> String
 levelIdToString (LevelId id) =
     String.fromInt id
-
-
