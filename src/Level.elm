@@ -1,7 +1,7 @@
 -- this is the module for the level type and its associated functions
 
 
-module Level exposing (Level)
+module Level exposing (Level, levelIdToString)
 
 
 type alias Level =
@@ -35,3 +35,11 @@ type LevelDifficulty
     = Easy
     | Normal
     | Hard
+
+
+-- level Id to string function, used for redirecting the player to a url
+levelIdToString : LevelId -> String
+levelIdToString (LevelId id) =
+    String.fromInt id
+
+
