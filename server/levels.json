@@ -20,6 +20,16 @@
                 "increment",
                 "double"
             ]
+        },
+        {
+            "id": 3,
+            "difficulty": "easy",
+            "startNumber": 1,
+            "endNumber": 10,
+            "minMovesToPass": 3,
+            "operators": [
+                "anInvalidOperator"
+            ]
         }
     ]
 }
