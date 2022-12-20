@@ -6,10 +6,12 @@ module Level exposing (Level)
 
 type alias Level =
     { id : LevelId
+    , difficulty : LevelDifficulty
     , startNumber : Float
     , goalNumber : Float
     , minMovesToPass : Int
-    -- level operators are the things that you can do to your number in the 
+
+    -- level operators are the things that you can do to your number in the
     -- level, like incrementing or decrementing it.
     , availableOperators : List (Float -> Float)
     }
@@ -26,3 +28,10 @@ type LevelId
 
 
 
+-- this type is solely for display purposes
+
+
+type LevelDifficulty
+    = Easy
+    | Normal
+    | Hard
