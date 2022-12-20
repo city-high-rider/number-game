@@ -71,6 +71,7 @@ initCurrentPage ( initialModel, initialCommands ) =
                     in
                     ( HomePage loadedPageModel, Cmd.map HomePageMsg loadedPageCmds )
 
+                -- todo : Add level view page
                 LevelViewRoute ->
                     ( NotFoundPage, Cmd.none )
     in
@@ -107,12 +108,15 @@ notFoundView =
 
 -- update and msg
 
-
 type Msg
     = HomePageMsg HomePageFile.Msg
     | LinkClicked UrlRequest
     | LinkChanged Url
 
+-- in this function if we are on a page and receive its corresponding
+-- message, we call its update function and save the new model in main and
+-- run any commands
+-- It also handles URL changes
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
