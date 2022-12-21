@@ -1,13 +1,11 @@
 -- this is the module for the level type and its associated functions
 
 
-module Level exposing (Level, LevelId, levelIdParser, isLevelOperationsNotEmpty, levelIdToString, levelsDecoder)
+module Level exposing (Level, LevelId, levelDecoder, isLevelOperationsNotEmpty, levelIdParser, levelIdToString, levelsDecoder)
 
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (optional, required)
-import Url.Parser exposing (int, map)
-import Url.Parser exposing (Parser)
-import Url.Parser exposing (custom)
+import Url.Parser exposing (Parser, custom, int, map)
 
 
 type alias Level =
@@ -67,7 +65,10 @@ levelIdParser =
         \levelId ->
             Maybe.map LevelId (String.toInt levelId)
 
--- json decoder to convert json data to level data type 
+
+
+-- json decoder to convert json data to level data type
+
 
 levelsDecoder : Decoder (List Level)
 levelsDecoder =
