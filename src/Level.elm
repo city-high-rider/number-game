@@ -1,8 +1,9 @@
 -- this is the module for the level type and its associated functions
 
 
-module Level exposing (Level, LevelId, levelDecoder, isLevelOperationsNotEmpty, levelIdParser, levelIdToString, levelsDecoder)
+module Level exposing (Level, LevelId, isLevelOperationsNotEmpty, levelDecoder, levelIdParser, levelIdToString, levelsDecoder)
 
+import Inscribed exposing (Inscribed(..))
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (optional, required)
 import Url.Parser exposing (Parser, custom, int, map)
@@ -17,7 +18,7 @@ type alias Level =
 
     -- level operations are the things that you can do to your number in the
     -- level, like incrementing or decrementing it.
-    , operations : List Operation
+    , operations : List (Inscribed Operation)
     }
 
 
@@ -95,29 +96,32 @@ levelIdDecoder =
     Decode.map LevelId Decode.int
 
 
-operationsDecoder : Decoder (List Operation)
+operationsDecoder : Decoder (List (Inscribed Operation))
 operationsDecoder =
     -- Our json for the levels will have a list called operators, that
     -- contains a bunch of strings which correspond to operations we can
     -- perform on our number. Unfortunately, we cannot guarantee that
     -- the strings in that json list will match to an operation.
     -- (see string To Operation) Therefore we will have a list of
-    -- "Maybe Operation", and we must filter out the Nothings.
+    -- "Maybe Inscribed Operation", and we must filter out the Nothings.
     -- that is (in theory) what this decoder should do.
+    -- the operations are wrapped in InscribedData so they have name
+    -- that is useful for display purposes later, namely the buttons
+    -- in the play page
     Decode.map (List.filterMap stringToOperation) (Decode.list Decode.string)
 
 
-stringToOperation : String -> Maybe Operation
+stringToOperation : String -> Maybe (Inscribed Operation)
 stringToOperation inp =
     case inp of
         "increment" ->
-            Just (FloatFunction ((+) 1))
+            Just (InscribedData (FloatFunction ((+) 1)) inp)
 
         "decrement" ->
-            Just (FloatFunction ((-) 1))
+            Just (InscribedData (FloatFunction ((-) 1)) inp)
 
         "double" ->
-            Just (FloatFunction ((*) 2))
+            Just (InscribedData (FloatFunction ((*) 2)) inp)
 
         _ ->
             Nothing
