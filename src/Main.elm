@@ -4,6 +4,7 @@ import Browser exposing (Document, UrlRequest, application)
 import Browser.Navigation as Nav exposing (Key)
 import Html exposing (Html, div, h3, p, text)
 import Pages.Home as HomePageFile exposing (Model, Msg, init, update, view)
+import Pages.LevelList as LevelListPageFile exposing (Model, Msg, init, update, view)
 import Route exposing (Route(..), urlToRoute)
 import Url exposing (Url)
 
@@ -34,6 +35,7 @@ type alias Model =
 type Page
     = NotFoundPage
     | HomePage HomePageFile.Model
+    | LevelListPage LevelListPageFile.Model
 
 
 
@@ -71,9 +73,12 @@ initCurrentPage ( initialModel, initialCommands ) =
                     in
                     ( HomePage loadedPageModel, Cmd.map HomePageMsg loadedPageCmds )
 
-                -- todo : Add level view page
                 LevelViewRoute ->
-                    ( NotFoundPage, Cmd.none )
+                    let
+                        ( loadedPageModel, loadedPageCmds ) =
+                            LevelListPageFile.init initialModel.navKey
+                    in
+                    ( LevelListPage loadedPageModel, Cmd.map LevelListPageMsg loadedPageCmds )
     in
     ( { initialModel | page = loadedPage }, Cmd.batch [ initialCommands, initalMappedPageCmds ] )
 
@@ -92,6 +97,10 @@ viewPage model =
             HomePageFile.view homePageModel
                 |> Html.map HomePageMsg
 
+        LevelListPage listPageModel ->
+            LevelListPageFile.view listPageModel
+                |> Html.map LevelListPageMsg
+
 
 view : Model -> Document Msg
 view model =
@@ -108,15 +117,20 @@ notFoundView =
 
 -- update and msg
 
+
 type Msg
     = HomePageMsg HomePageFile.Msg
+    | LevelListPageMsg LevelListPageFile.Msg
     | LinkClicked UrlRequest
     | LinkChanged Url
+
+
 
 -- in this function if we are on a page and receive its corresponding
 -- message, we call its update function and save the new model in main and
 -- run any commands
 -- It also handles URL changes
+
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -127,6 +141,13 @@ update msg model =
                     HomePageFile.update homePageMessage homePageModel
             in
             ( { model | page = HomePage updatedPageModel }, Cmd.map HomePageMsg updatedPageCmd )
+
+        ( LevelListPageMsg listPageMessage, LevelListPage listPageModel ) ->
+            let
+                ( updatedPageModel, updatedPageCmd ) =
+                    LevelListPageFile.update listPageMessage listPageModel
+            in
+            ( { model | page = LevelListPage updatedPageModel }, Cmd.map LevelListPageMsg updatedPageCmd )
 
         ( LinkClicked urlRequest, _ ) ->
             case urlRequest of
