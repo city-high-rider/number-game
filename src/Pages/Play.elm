@@ -1,11 +1,12 @@
 module Pages.Play exposing (..)
 
 import ErrorViewing exposing (viewError)
-import Html exposing (Html, button, div, h2, h3, text)
+import Html exposing (Html, button, div, h2, h3, text, p)
 import Html.Events exposing (onClick)
 import Http
-import Level exposing (Level, LevelId, levelDecoder, levelIdToString)
+import Level exposing (Level, LevelId, levelDecoder, levelIdToString, Operation)
 import RemoteData exposing (RemoteData(..), WebData, isSuccess)
+import Inscribed exposing (Inscribed)
 
 
 
@@ -20,8 +21,8 @@ type alias Model =
     -- the level itself. It makes more sense to have the current
     -- number be part of the play page. However, it has to be of type
     -- webdata, since we only initialise it when the level is succesfully
-    -- loaded.
-    , currentNumber : WebData Float
+    -- loaded. it is also inscribed so that we can log user action
+    , currentNumber : WebData (Inscribed Float )
     }
 
 
@@ -69,21 +70,42 @@ view model =
             h3 [] [ text "Something went wrong..." ]
 
 
-viewLevel : Level -> Float -> Html Msg
+viewLevel : Level -> (Inscribed Float) -> Html Msg
 viewLevel level number =
     div []
         [ h2 [] [ text ("Level " ++ levelIdToString level.id) ]
-        , h3 [] [text ( "Goal number : " ++ String.fromFloat level.goalNumber )]
-        , h3 [] [text ("Current number : " ++ String.fromFloat number)]
+        , h3 [] [ text ("Goal number : " ++ String.fromFloat level.goalNumber) ]
+        , h3 [] [ text ("Current number : " ++ String.fromFloat ( Inscribed.extractValue number )) ]
+        , operationButtons level.operations
+        , actionHistory number
         ]
 
+-- here we take the list of the operations loaded in the level, and turn
+-- them all into buttons for display
+operationButtons : List (Inscribed Operation) -> Html Msg
+operationButtons operations =
+    div [] (List.map inscribedOperationToButton operations)
 
+inscribedOperationToButton : (Inscribed Operation) -> Html Msg
+inscribedOperationToButton inOp =
+    -- for the text, we just extract the "name" of the function
+    -- when the button is clicked, we send the operation with the name
+    -- to the update function, so that we can change the current number and
+    -- log the change
+    button [onClick (PerformOperation inOp)] [text <| Inscribed.extractMessage inOp]
 
+actionHistory : Inscribed Float -> Html Msg
+actionHistory inFloat =
+    div []
+    [ h3 [] [text "Your actions so far : "]
+    , p [] [text <| Inscribed.extractMessage inFloat]
+        ]
 -- update and msg
 
 
 type Msg
     = ReceivedLevel (WebData Level)
+    | PerformOperation (Inscribed Operation)
 
 
 loadLevel : LevelId -> Cmd Msg
@@ -111,7 +133,10 @@ update msg model =
             in
             ( { model | currentNumber = currentNumber, currentLevel = levelData }, cmd )
 
+        PerformOperation (Inscribed.InscribedData fn name) ->
+            (model, Cmd.none)
 
-initCurrentNumber : Level -> ( Float, Cmd Msg )
+
+initCurrentNumber : Level -> ( Inscribed Float, Cmd Msg )
 initCurrentNumber levelData =
-    ( levelData.startNumber, Cmd.none )
+    ( Inscribed.InscribedData levelData.startNumber "", Cmd.none )

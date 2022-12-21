@@ -1,7 +1,7 @@
 -- this is the module for the level type and its associated functions
 
 
-module Level exposing (Level, LevelId, isLevelOperationsNotEmpty, levelDecoder, levelIdParser, levelIdToString, levelsDecoder)
+module Level exposing (Level, LevelId, Operation, isLevelOperationsNotEmpty, levelDecoder, levelIdParser, levelIdToString, levelsDecoder)
 
 import Inscribed exposing (Inscribed(..))
 import Json.Decode as Decode exposing (Decoder)
