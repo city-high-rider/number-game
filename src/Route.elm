@@ -6,8 +6,9 @@
 module Route exposing (..)
 
 import Browser.Navigation as Nav exposing (Key)
+import Level exposing (LevelId, levelIdToString, levelIdParser)
 import Url exposing (Url)
-import Url.Parser exposing (Parser, map, oneOf, parse, s, top)
+import Url.Parser exposing ((</>), Parser, int, map, oneOf, parse, s, top)
 
 
 
@@ -18,6 +19,7 @@ type Route
     = NotFoundRoute
     | HomeRoute
     | LevelViewRoute
+    | LevelPlayRoute LevelId
 
 
 
@@ -29,6 +31,7 @@ routeParser =
     oneOf
         [ map HomeRoute top
         , map LevelViewRoute (s "levels")
+        , map LevelPlayRoute (s "levels" </> levelIdParser)
         ]
 
 
@@ -57,6 +60,9 @@ routeToString route =
 
         LevelViewRoute ->
             "/levels"
+
+        LevelPlayRoute lvlId ->
+            "/levels/" ++ levelIdToString lvlId
 
 
 
