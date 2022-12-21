@@ -1,6 +1,7 @@
 module Pages.LevelList exposing (Model, Msg, init, update, view)
 
 import Browser.Navigation exposing (Key)
+import ErrorViewing exposing (viewError)
 import Html exposing (Html, a, button, div, h3, p, table, td, text, th, tr)
 import Html.Attributes exposing (href)
 import Html.Events exposing (onClick)
@@ -78,33 +79,6 @@ levelToTableRow level =
         , td [] [ text level.difficulty ]
         , a [ href ("/levels/" ++ levelIdToString level.id) ] [ text "Play" ]
         ]
-
-
-viewError : Http.Error -> Html Msg
-viewError error =
-    div []
-        [ h3 [] [ text "There was an error loading the content !" ]
-        , p [] [ text ("Reason : " ++ httpErrorToString error) ]
-        ]
-
-
-httpErrorToString : Http.Error -> String
-httpErrorToString error =
-    case error of
-        Http.BadUrl message ->
-            message
-
-        Http.Timeout ->
-            "Server is taking too long to respond. Please try again later."
-
-        Http.NetworkError ->
-            "Unable to reach server."
-
-        Http.BadStatus statusCode ->
-            "Request failed with status code: " ++ String.fromInt statusCode
-
-        Http.BadBody message ->
-            message
 
 
 
