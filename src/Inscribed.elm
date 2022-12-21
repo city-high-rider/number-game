@@ -8,16 +8,16 @@ module Inscribed exposing (..)
 
 
 type Inscribed a
-    = Inscribed a String
+    = InscribedData a String
 
 
 extractMessage : Inscribed a -> String
-extractMessage (Inscribed _ msg) =
+extractMessage (InscribedData _ msg) =
     msg
 
 
 extractValue : Inscribed a -> a
-extractValue (Inscribed val _) =
+extractValue (InscribedData val _) =
     val
 
 
@@ -27,13 +27,13 @@ extractValue (Inscribed val _) =
 
 
 bind : (a -> Inscribed b) -> Inscribed a -> Inscribed b
-bind fn (Inscribed oldValue oldMessage) =
+bind fn (InscribedData oldValue oldMessage) =
     let
         -- unfortunately elm doesn't let me directly pattern match here
         newInscribed =
             fn oldValue
 
-        (Inscribed newValue newMessage) =
+        (InscribedData newValue newMessage) =
             newInscribed
     in
-    Inscribed newValue (oldMessage ++ newMessage)
+    InscribedData newValue (oldMessage ++ newMessage)
