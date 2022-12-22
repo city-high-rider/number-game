@@ -42,6 +42,18 @@
                 "factorial",
                 "round"
             ]
+        },
+        {
+            "id": 5,
+            "difficulty": "medium",
+            "startNumber": 3,
+            "endNumber": 4,
+            "availableMoves": 3,
+            "operators": [
+                "decrement",
+                "square",
+                "half"
+            ]
         }
     ]
 }
