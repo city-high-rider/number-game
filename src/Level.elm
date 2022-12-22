@@ -16,7 +16,7 @@ type alias Level =
     , difficulty : String
     , startNumber : Float
     , goalNumber : Float
-    , minMovesToPass : Int
+    , availableMoves : Int
 
     -- level operations are the things that you can do to your number in the
     -- level, like incrementing or decrementing it.
