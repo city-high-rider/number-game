@@ -41,6 +41,13 @@ bind fn (InscribedData oldValue oldMessage) =
     InscribedData newValue (oldMessage ++ newMessage)
 
 
+map : (a -> b) -> Inscribed a -> Inscribed b
+map fn (InscribedData val message) =
+    let
+        newVal = fn val
+    in
+        InscribedData newVal message
+    
 
 -- I'm sure there's a proper name for this. This function is used for
 -- logging the player's actions in the play page. For example, if you had
@@ -66,7 +73,7 @@ makeBindable (InscribedData operation name) =
                             fn n
                     in
                     InscribedData result <|
-                        (name ++ " " ++ String.fromFloat n ++ " to get " ++ String.fromFloat result)
+                        (" " ++ name ++ " " ++ String.fromFloat n ++ " to get " ++ String.fromFloat result ++ ";")
             in
             FloatFunction returnFunction
 
@@ -79,6 +86,6 @@ makeBindable (InscribedData operation name) =
                             fn n
                     in
                     InscribedData result <|
-                        (name ++ " " ++ String.fromInt n ++ " to get " ++ String.fromInt result)
+                        (" " ++ name ++ " " ++ String.fromInt n ++ " to get " ++ String.fromInt result ++ ";")
             in
             IntFunction returnFunction
