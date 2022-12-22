@@ -123,6 +123,9 @@ stringToOperation inp =
         "factorial" ->
             Just (InscribedData (IntFunction factorial) "Take factorial of")
 
+        "round" ->
+            Just (InscribedData (FloatFunction (round >> toFloat)) inp)
+
         _ ->
             Nothing
 

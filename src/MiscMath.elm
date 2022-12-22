@@ -7,3 +7,8 @@ factorial n =
 
     else
         n * factorial (n - 1)
+
+isRound : Float -> Bool
+isRound x =
+    x == (x |> round |> toFloat)
+

@@ -36,10 +36,11 @@
             "difficulty": "easy",
             "startNumber": 5.2,
             "endNumber": 24,
-            "minMovesToPass": 2,
+            "minMovesToPass": 3,
             "operators": [
                 "decrement",
-                "factorial"
+                "factorial",
+                "round"
             ]
         }
     ]

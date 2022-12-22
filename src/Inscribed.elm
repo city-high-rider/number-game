@@ -7,6 +7,7 @@
 module Inscribed exposing (..)
 
 import Operation exposing (Operation)
+import MiscMath exposing (isRound)
 
 
 type Inscribed a
@@ -92,16 +93,20 @@ makeBindable (InscribedData operation name) =
             in
             IntFunction returnFunction
 
-executeOperation : (Inscribed Operation) -> Inscribed Float -> Inscribed Float
+executeOperation : (Inscribed Operation) -> Inscribed Float -> Result String (Inscribed Float)
 executeOperation inscOp inscFloat =
     let
         bindable = makeBindable inscOp
     in
     case bindable of
         FloatFunction ffn ->
-            bind ffn inscFloat
+            bind ffn inscFloat |> Ok
 
         IntFunction ifn ->
-            map round inscFloat |> bind ifn |> map toFloat
+            if isRound <| extractValue inscFloat then
+                map round inscFloat |> bind ifn |> map toFloat |> Ok
+            else 
+                Err "The number is not round, so it cannot be put into an integer function !"
+
             
     

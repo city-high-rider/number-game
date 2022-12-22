@@ -30,6 +30,7 @@ type alias Model =
     -- loaded. it is also inscribed so that we can log user action
     , currentNumber : WebData (Inscribed Float)
     , moves : Int
+    , operationError : Maybe String
     }
 
 
@@ -46,6 +47,7 @@ init lvlId =
             { currentLevel = Loading
             , currentNumber = Loading
             , moves = 0
+            , operationError = Nothing
             }
     in
     ( initialModel, loadLevel lvlId )
@@ -72,23 +74,35 @@ view model =
             viewError reason
 
         ( Success level, Success number ) ->
-            viewLevel level number model.moves
+            viewLevel level model number
 
         ( _, _ ) ->
             h3 [] [ text "Something went wrong..." ]
 
 
-viewLevel : Level -> Inscribed Float -> Int -> Html Msg
-viewLevel level number moves =
+viewLevel : Level -> Model -> Inscribed Float -> Html Msg
+viewLevel level model currentNumber =
     div []
         [ h2 [] [ text ("Level " ++ levelIdToString level.id) ]
         , h3 [] [ text ("Goal number : " ++ String.fromFloat level.goalNumber) ]
-        , h3 [] [ text ("Current number : " ++ String.fromFloat (Inscribed.extractValue number)) ]
-        , displayWinCondition level moves number
+        , h3 [] [ text ("Current number : " ++ String.fromFloat (Inscribed.extractValue currentNumber)) ]
+        , viewOperationError model.operationError
+        , displayWinCondition level model.moves currentNumber
         , operationButtons level.operations
-        , actionHistory number
+        , actionHistory currentNumber
         ]
 
+viewOperationError : Maybe String -> Html Msg
+viewOperationError err =
+    case err of
+        Nothing ->
+            div [] []
+        Just reason ->
+            div []
+            [ h3 [] [text "The operation failed !"]
+            , p [] [text ("Reason : " ++ reason)]
+                ]
+    
 
 displayWinCondition : Level -> Int -> Inscribed Float -> Html Msg
 displayWinCondition level currentMoves (Inscribed.InscribedData currentNumber _) =
@@ -203,12 +217,17 @@ update msg model =
             case model.currentNumber of
                 RemoteData.Success number ->
                     let 
-                        newNumber =
-                            executeOperation inscribedOperation number
-                                |> RemoteData.succeed
+                        newNumber = executeOperation inscribedOperation number
                         newMoves = model.moves + 1
                     in
-                    ({model | currentNumber = newNumber, moves = newMoves}, Cmd.none)
+                    case newNumber of
+                        Ok val ->
+                            ({model | currentNumber = RemoteData.succeed val
+                            , moves = newMoves
+                            , operationError = Nothing
+                            }, Cmd.none)
+                        Err error ->
+                           ({model | operationError = Just error}, Cmd.none) 
 
                 _ ->
                     (model, Cmd.none)
