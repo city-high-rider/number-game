@@ -1,12 +1,13 @@
 module Pages.Play exposing (..)
 
 import ErrorViewing exposing (viewError)
-import Html exposing (Html, button, div, h2, h3, text, p)
+import Html exposing (Html, button, div, h2, h3, p, text)
 import Html.Events exposing (onClick)
 import Http
-import Level exposing (Level, LevelId, levelDecoder, levelIdToString, Operation)
+import Inscribed exposing (BindableFunction(..), Inscribed, bind, makeBindable)
+import Level exposing (Level, LevelId, levelDecoder, levelIdToString)
+import Operation exposing (Operation)
 import RemoteData exposing (RemoteData(..), WebData, isSuccess)
-import Inscribed exposing (Inscribed)
 
 
 
@@ -22,7 +23,7 @@ type alias Model =
     -- number be part of the play page. However, it has to be of type
     -- webdata, since we only initialise it when the level is succesfully
     -- loaded. it is also inscribed so that we can log user action
-    , currentNumber : WebData (Inscribed Float )
+    , currentNumber : WebData (Inscribed Float)
     }
 
 
@@ -70,36 +71,45 @@ view model =
             h3 [] [ text "Something went wrong..." ]
 
 
-viewLevel : Level -> (Inscribed Float) -> Html Msg
+viewLevel : Level -> Inscribed Float -> Html Msg
 viewLevel level number =
     div []
         [ h2 [] [ text ("Level " ++ levelIdToString level.id) ]
         , h3 [] [ text ("Goal number : " ++ String.fromFloat level.goalNumber) ]
-        , h3 [] [ text ("Current number : " ++ String.fromFloat ( Inscribed.extractValue number )) ]
+        , h3 [] [ text ("Current number : " ++ String.fromFloat (Inscribed.extractValue number)) ]
         , operationButtons level.operations
         , actionHistory number
         ]
 
+
+
 -- here we take the list of the operations loaded in the level, and turn
 -- them all into buttons for display
+
+
 operationButtons : List (Inscribed Operation) -> Html Msg
 operationButtons operations =
     div [] (List.map inscribedOperationToButton operations)
 
-inscribedOperationToButton : (Inscribed Operation) -> Html Msg
+
+inscribedOperationToButton : Inscribed Operation -> Html Msg
 inscribedOperationToButton inOp =
     -- for the text, we just extract the "name" of the function
     -- when the button is clicked, we send the operation with the name
     -- to the update function, so that we can change the current number and
     -- log the change
-    button [onClick (PerformOperation inOp)] [text <| Inscribed.extractMessage inOp]
+    button [ onClick (PerformOperation inOp) ] [ text <| Inscribed.extractMessage inOp ]
+
 
 actionHistory : Inscribed Float -> Html Msg
 actionHistory inFloat =
     div []
-    [ h3 [] [text "Your actions so far : "]
-    , p [] [text <| Inscribed.extractMessage inFloat]
+        [ h3 [] [ text "Your actions so far : " ]
+        , p [] [ text <| Inscribed.extractMessage inFloat ]
         ]
+
+
+
 -- update and msg
 
 
@@ -114,6 +124,11 @@ loadLevel lvlId =
         { url = "http://localhost:5019/levels/" ++ levelIdToString lvlId
         , expect = Http.expectJson (RemoteData.fromResult >> ReceivedLevel) levelDecoder
         }
+
+
+initCurrentNumber : Level -> ( Inscribed Float, Cmd Msg )
+initCurrentNumber levelData =
+    ( Inscribed.InscribedData levelData.startNumber "", Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -133,10 +148,38 @@ update msg model =
             in
             ( { model | currentNumber = currentNumber, currentLevel = levelData }, cmd )
 
-        PerformOperation (Inscribed.InscribedData fn name) ->
-            (model, Cmd.none)
+        PerformOperation inscribedOperation ->
+            let
+                -- First, we turn the operation into a bindable function
+                bindable =
+                    makeBindable inscribedOperation
+            in
+            -- now we check that the number is loaded
+            case ( model.currentNumber, bindable ) of
+                ( RemoteData.Success inscFloat, fn ) ->
+                    -- now we check the bindable function to see if it
+                    -- accepts floats or integers
+                    case fn of
+                        FloatFunction ffn ->
+                            -- if it's a float, we can just chuck our number in. 
+                            -- we do have to wrap it into a remotedata type though
+                            ( { model | currentNumber = RemoteData.succeed (bind ffn inscFloat) }, Cmd.none )
 
+                        IntFunction ifn ->
+                            -- if it's an int, we round our float, put it through,
+                            -- convert the result to float, then remotedata succeed 
+                            -- that and save it
+                            let
+                                roundedFloat =
+                                    Inscribed.map round inscFloat
 
-initCurrentNumber : Level -> ( Inscribed Float, Cmd Msg )
-initCurrentNumber levelData =
-    ( Inscribed.InscribedData levelData.startNumber "", Cmd.none )
+                                result =
+                                    bind ifn roundedFloat
+
+                                resultToFloat =
+                                    Inscribed.map toFloat result
+                            in
+                            ({model | currentNumber = RemoteData.succeed resultToFloat}, Cmd.none)
+
+                ( _, _ ) ->
+                    ( model, Cmd.none )
