@@ -12,6 +12,7 @@ import Inscribed exposing (BindableFunction(..), Inscribed, bind, makeBindable)
 import Level exposing (Level, LevelId, levelDecoder, levelIdToString)
 import Operation exposing (Operation)
 import RemoteData exposing (RemoteData(..), WebData, isSuccess)
+import Inscribed exposing (executeOperation)
 
 
 
@@ -199,39 +200,18 @@ update msg model =
             ( { model | currentNumber = currentNumber, currentLevel = levelData }, cmd )
 
         PerformOperation inscribedOperation ->
-            let
-                -- First, we turn the operation into a bindable function
-                bindable =
-                    makeBindable inscribedOperation
-            in
-            -- now we check that the number is loaded
-            case ( model.currentNumber, bindable ) of
-                ( RemoteData.Success inscFloat, fn ) ->
-                    -- now we check the bindable function to see if it
-                    -- accepts floats or integers
-                    case fn of
-                        FloatFunction ffn ->
-                            -- if it's a float, we can just chuck our number in.
-                            -- we do have to wrap it into a remotedata type though
-                            ( { model | currentNumber = RemoteData.succeed (bind ffn inscFloat) }, Cmd.none )
+            case model.currentNumber of
+                RemoteData.Success number ->
+                    let 
+                        newNumber =
+                            executeOperation inscribedOperation number
+                                |> RemoteData.succeed
+                        newMoves = model.moves + 1
+                    in
+                    ({model | currentNumber = newNumber, moves = newMoves}, Cmd.none)
 
-                        IntFunction ifn ->
-                            -- if it's an int, we round our float, put it through,
-                            -- convert the result to float, then remotedata succeed
-                            -- that and save it
-                            let
-                                roundedFloat =
-                                    Inscribed.map round inscFloat
+                _ ->
+                    (model, Cmd.none)
 
-                                result =
-                                    bind ifn roundedFloat
-
-                                resultToFloat =
-                                    Inscribed.map toFloat result
-                            in
-                            ( { model | currentNumber = RemoteData.succeed resultToFloat }, Cmd.none )
-
-                ( _, _ ) ->
-                    ( model, Cmd.none )
 
 

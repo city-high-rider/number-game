@@ -91,3 +91,17 @@ makeBindable (InscribedData operation name) =
                         (" " ++ name ++ " " ++ String.fromInt n ++ " to get " ++ String.fromInt result ++ ";")
             in
             IntFunction returnFunction
+
+executeOperation : (Inscribed Operation) -> Inscribed Float -> Inscribed Float
+executeOperation inscOp inscFloat =
+    let
+        bindable = makeBindable inscOp
+    in
+    case bindable of
+        FloatFunction ffn ->
+            bind ffn inscFloat
+
+        IntFunction ifn ->
+            map round inscFloat |> bind ifn |> map toFloat
+            
+    
