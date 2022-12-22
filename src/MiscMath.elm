@@ -15,3 +15,7 @@ isRound x =
 square : Float -> Float
 square x =
     x * x
+
+half : Float -> Float
+half x =
+    x / 2

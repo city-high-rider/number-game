@@ -8,7 +8,7 @@ import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (optional, required)
 import Operation exposing (Operation(..))
 import Url.Parser exposing (Parser, custom, int, map)
-import MiscMath exposing  (factorial, square)
+import MiscMath exposing  (factorial, square, half)
 
 
 type alias Level =
@@ -127,7 +127,7 @@ stringToOperation inp =
             Just (InscribedData (FloatFunction (round >> toFloat)) inp)
 
         "half" ->
-            Just (InscribedData (FloatFunction ((/) 2)) "half")
+            Just (InscribedData (FloatFunction half) "half")
 
         "square" ->
             Just (InscribedData (FloatFunction square) "square")
