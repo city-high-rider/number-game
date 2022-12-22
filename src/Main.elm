@@ -115,7 +115,6 @@ viewPage model =
                 |> Html.map PlayPageMsg
 
 
-
 view : Model -> Document Msg
 view model =
     { title = "Number game"
@@ -170,7 +169,6 @@ update msg model =
                     PlayPageFile.update playMsg playPageModel
             in
             ( { model | page = PlayPage updatedPageModel }, Cmd.map PlayPageMsg updatedPageCmd )
-
 
         ( LinkClicked urlRequest, _ ) ->
             case urlRequest of
