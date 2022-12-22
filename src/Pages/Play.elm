@@ -106,14 +106,14 @@ viewOperationError err =
 
 displayWinCondition : Level -> Int -> Inscribed Float -> Html Msg
 displayWinCondition level currentMoves (Inscribed.InscribedData currentNumber _) =
-    if currentNumber == level.goalNumber && currentMoves < level.availableMoves then
+    if currentNumber == level.goalNumber && currentMoves <= level.availableMoves then
         div []
             [ displayMoves currentMoves
                 level.availableMoves
             , displayWinScreen
             ]
 
-    else if currentNumber /= level.goalNumber && currentMoves >= level.availableMoves then
+    else if currentMoves > level.availableMoves then
         div []
             [ displayMoves currentMoves
                 level.availableMoves
