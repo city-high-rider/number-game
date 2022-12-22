@@ -120,7 +120,7 @@ stringToOperation inp =
             Just (InscribedData (FloatFunction ((*) 2)) inp)
 
         "factorial" ->
-            Just (InscribedData (IntFunction factorial) inp)
+            Just (InscribedData (IntFunction factorial) "Take factorial of")
 
         _ ->
             Nothing
