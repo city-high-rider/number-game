@@ -30,6 +30,17 @@
             "operators": [
                 "anInvalidOperator"
             ]
+        },
+        {
+            "id": 4,
+            "difficulty": "easy",
+            "startNumber": 5.2,
+            "endNumber": 24,
+            "minMovesToPass": 2,
+            "operators": [
+                "decrement",
+                "factorial"
+            ]
         }
     ]
 }
