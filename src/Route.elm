@@ -6,7 +6,7 @@
 module Route exposing (..)
 
 import Browser.Navigation as Nav exposing (Key)
-import Level exposing (LevelId, levelIdToString, levelIdParser)
+import Level exposing (LevelId, levelIdParser, levelIdToString)
 import Url exposing (Url)
 import Url.Parser exposing ((</>), Parser, int, map, oneOf, parse, s, top)
 

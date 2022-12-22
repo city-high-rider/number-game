@@ -44,10 +44,12 @@ bind fn (InscribedData oldValue oldMessage) =
 map : (a -> b) -> Inscribed a -> Inscribed b
 map fn (InscribedData val message) =
     let
-        newVal = fn val
+        newVal =
+            fn val
     in
-        InscribedData newVal message
-    
+    InscribedData newVal message
+
+
 
 -- I'm sure there's a proper name for this. This function is used for
 -- logging the player's actions in the play page. For example, if you had
