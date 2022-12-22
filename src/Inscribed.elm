@@ -6,6 +6,8 @@
 
 module Inscribed exposing (..)
 
+import Operation exposing (Operation)
+
 
 type Inscribed a
     = InscribedData a String
@@ -37,3 +39,46 @@ bind fn (InscribedData oldValue oldMessage) =
             newInscribed
     in
     InscribedData newValue (oldMessage ++ newMessage)
+
+
+
+-- I'm sure there's a proper name for this. This function is used for
+-- logging the player's actions in the play page. For example, if you had
+-- an operation that adds one called "increment", and you put it through
+-- this, you'd get a function that adds one to the given number, and
+-- adds the message "increment x to get result"
+
+
+type BindableFunction
+    = IntFunction (Int -> Inscribed Int)
+    | FloatFunction (Float -> Inscribed Float)
+
+
+makeBindable : Inscribed Operation -> BindableFunction
+makeBindable (InscribedData operation name) =
+    case operation of
+        Operation.FloatFunction fn ->
+            let
+                returnFunction : Float -> Inscribed Float
+                returnFunction n =
+                    let
+                        result =
+                            fn n
+                    in
+                    InscribedData result <|
+                        (name ++ " " ++ String.fromFloat n ++ " to get " ++ String.fromFloat result)
+            in
+            FloatFunction returnFunction
+
+        Operation.IntFunction fn ->
+            let
+                returnFunction : Int -> Inscribed Int
+                returnFunction n =
+                    let
+                        result =
+                            fn n
+                    in
+                    InscribedData result <|
+                        (name ++ " " ++ String.fromInt n ++ " to get " ++ String.fromInt result)
+            in
+            IntFunction returnFunction
