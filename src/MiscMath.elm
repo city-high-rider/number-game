@@ -12,3 +12,6 @@ isRound : Float -> Bool
 isRound x =
     x == (x |> round |> toFloat)
 
+square : Float -> Float
+square x =
+    x * x

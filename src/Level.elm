@@ -8,7 +8,7 @@ import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (optional, required)
 import Operation exposing (Operation(..))
 import Url.Parser exposing (Parser, custom, int, map)
-import MiscMath exposing  (factorial)
+import MiscMath exposing  (factorial, square)
 
 
 type alias Level =
@@ -80,7 +80,7 @@ levelDecoder =
         |> required "difficulty" Decode.string
         |> required "startNumber" Decode.float
         |> required "endNumber" Decode.float
-        |> required "minMovesToPass" Decode.int
+        |> required "availableMoves" Decode.int
         -- here is the issue : there is no guarantee that the json for the levels will have
         -- valid functions listed, maybe there is a typo or something.
         -- so we might have to return an empty list. Later on we can reject the level
@@ -125,6 +125,12 @@ stringToOperation inp =
 
         "round" ->
             Just (InscribedData (FloatFunction (round >> toFloat)) inp)
+
+        "half" ->
+            Just (InscribedData (FloatFunction ((/) 2)) "half")
+
+        "square" ->
+            Just (InscribedData (FloatFunction square) "square")
 
         _ ->
             Nothing

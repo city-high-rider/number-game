@@ -5,7 +5,7 @@
             "difficulty": "easy",
             "startNumber": 0,
             "endNumber": 5,
-            "minMovesToPass": 5,
+            "availableMoves": 5,
             "operators": [
                 "increment"
             ]
@@ -15,7 +15,7 @@
             "difficulty": "easy",
             "startNumber": 1,
             "endNumber": 6,
-            "minMovesToPass": 3,
+            "availableMoves": 3,
             "operators": [
                 "increment",
                 "double"
@@ -26,7 +26,7 @@
             "difficulty": "easy",
             "startNumber": 1,
             "endNumber": 10,
-            "minMovesToPass": 3,
+            "availableMoves": 3,
             "operators": [
                 "anInvalidOperator"
             ]
@@ -36,7 +36,7 @@
             "difficulty": "easy",
             "startNumber": 5.2,
             "endNumber": 24,
-            "minMovesToPass": 3,
+            "availableMoves": 3,
             "operators": [
                 "decrement",
                 "factorial",
