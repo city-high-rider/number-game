@@ -114,7 +114,7 @@ stringToOperation inp =
             Just (InscribedData (FloatFunction ((+) 1)) inp)
 
         "decrement" ->
-            Just (InscribedData (FloatFunction ((-) 1)) inp)
+            Just (InscribedData (FloatFunction ((+) -1)) inp)
 
         "double" ->
             Just (InscribedData (FloatFunction ((*) 2)) inp)
