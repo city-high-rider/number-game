@@ -8,6 +8,7 @@ import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (optional, required)
 import Operation exposing (Operation(..))
 import Url.Parser exposing (Parser, custom, int, map)
+import MiscMath exposing  (factorial)
 
 
 type alias Level =
@@ -126,10 +127,3 @@ stringToOperation inp =
             Nothing
 
 
-factorial : Int -> Int
-factorial n =
-    if n == 0 then
-        1
-
-    else
-        n * factorial (n - 1)
