@@ -5,6 +5,7 @@ import Browser.Navigation as Nav exposing (Key)
 import Html exposing (Html, div, h3, p, text)
 import Pages.Home as HomePageFile exposing (Model, Msg, init, update, view)
 import Pages.LevelList as LevelListPageFile exposing (Model, Msg, init, update, view)
+import Pages.Play as PlayPageFile exposing (Model, Msg, init, update, view)
 import Route exposing (Route(..), urlToRoute)
 import Url exposing (Url)
 
@@ -36,6 +37,7 @@ type Page
     = NotFoundPage
     | HomePage HomePageFile.Model
     | LevelListPage LevelListPageFile.Model
+    | PlayPage PlayPageFile.Model
 
 
 
@@ -79,6 +81,13 @@ initCurrentPage ( initialModel, initialCommands ) =
                             LevelListPageFile.init initialModel.navKey
                     in
                     ( LevelListPage loadedPageModel, Cmd.map LevelListPageMsg loadedPageCmds )
+
+                LevelPlayRoute levelId ->
+                    let
+                        ( loadedPageModel, loadedPageCmds ) =
+                            PlayPageFile.init levelId
+                    in
+                    ( PlayPage loadedPageModel, Cmd.map PlayPageMsg loadedPageCmds )
     in
     ( { initialModel | page = loadedPage }, Cmd.batch [ initialCommands, initalMappedPageCmds ] )
 
@@ -101,6 +110,10 @@ viewPage model =
             LevelListPageFile.view listPageModel
                 |> Html.map LevelListPageMsg
 
+        PlayPage playPageModel ->
+            PlayPageFile.view playPageModel
+                |> Html.map PlayPageMsg
+
 
 view : Model -> Document Msg
 view model =
@@ -121,6 +134,7 @@ notFoundView =
 type Msg
     = HomePageMsg HomePageFile.Msg
     | LevelListPageMsg LevelListPageFile.Msg
+    | PlayPageMsg PlayPageFile.Msg
     | LinkClicked UrlRequest
     | LinkChanged Url
 
@@ -148,6 +162,13 @@ update msg model =
                     LevelListPageFile.update listPageMessage listPageModel
             in
             ( { model | page = LevelListPage updatedPageModel }, Cmd.map LevelListPageMsg updatedPageCmd )
+
+        ( PlayPageMsg playMsg, PlayPage playPageModel ) ->
+            let
+                ( updatedPageModel, updatedPageCmd ) =
+                    PlayPageFile.update playMsg playPageModel
+            in
+            ( { model | page = PlayPage updatedPageModel }, Cmd.map PlayPageMsg updatedPageCmd )
 
         ( LinkClicked urlRequest, _ ) ->
             case urlRequest of
