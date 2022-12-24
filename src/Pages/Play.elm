@@ -8,11 +8,10 @@ import ErrorViewing exposing (viewError)
 import Html exposing (Html, button, div, h2, h3, p, strong, text)
 import Html.Events exposing (onClick)
 import Http
-import Inscribed exposing (BindableFunction(..), Inscribed, bind, makeBindable)
+import Inscribed exposing (BindableFunction(..), Inscribed, bind, executeOperation, makeBindable)
 import Level exposing (Level, LevelId, levelDecoder, levelIdToString)
 import Operation exposing (Operation)
 import RemoteData exposing (RemoteData(..), WebData, isSuccess)
-import Inscribed exposing (executeOperation)
 
 
 
@@ -92,17 +91,19 @@ viewLevel level model currentNumber =
         , actionHistory currentNumber
         ]
 
+
 viewOperationError : Maybe String -> Html Msg
 viewOperationError err =
     case err of
         Nothing ->
             div [] []
+
         Just reason ->
             div []
-            [ h3 [] [text "The operation failed !"]
-            , p [] [text ("Reason : " ++ reason)]
+                [ h3 [] [ text "The operation failed !" ]
+                , p [] [ text ("Reason : " ++ reason) ]
                 ]
-    
+
 
 displayWinCondition : Level -> Int -> Inscribed Float -> Html Msg
 displayWinCondition level currentMoves (Inscribed.InscribedData currentNumber _) =
@@ -135,7 +136,7 @@ displayWinScreen : Html Msg
 displayWinScreen =
     div []
         [ h3 [] [ text "You won!" ]
-        , button [] [ text "Next ->" ]
+        , button [ onClick GotoNextLevel ] [ text "Next ->" ]
         ]
 
 
@@ -181,6 +182,7 @@ actionHistory inFloat =
 type Msg
     = ReceivedLevel (WebData Level)
     | PerformOperation (Inscribed Operation)
+    | GotoNextLevel
 
 
 loadLevel : LevelId -> Cmd Msg
@@ -211,26 +213,57 @@ update msg model =
                 ( currentNumber, cmd ) =
                     RemoteData.update initCurrentNumber levelData
             in
-            ( { model | currentNumber = currentNumber, currentLevel = levelData }, cmd )
+            ( { model
+                | currentNumber = currentNumber
+                , currentLevel = levelData
+                , moves = 0
+              }
+            , cmd
+            )
 
         PerformOperation inscribedOperation ->
             case model.currentNumber of
                 RemoteData.Success number ->
-                    let 
-                        newNumber = executeOperation inscribedOperation number
-                        newMoves = model.moves + 1
+                    let
+                        newNumber =
+                            executeOperation inscribedOperation number
+
+                        newMoves =
+                            model.moves + 1
                     in
                     case newNumber of
                         Ok val ->
-                            ({model | currentNumber = RemoteData.succeed val
-                            , moves = newMoves
-                            , operationError = Nothing
-                            }, Cmd.none)
+                            ( { model
+                                | currentNumber = RemoteData.succeed val
+                                , moves = newMoves
+                                , operationError = Nothing
+                              }
+                            , Cmd.none
+                            )
+
                         Err error ->
-                           ({model | operationError = Just error}, Cmd.none) 
+                            ( { model | operationError = Just error }, Cmd.none )
 
                 _ ->
-                    (model, Cmd.none)
+                    ( model, Cmd.none )
 
+        GotoNextLevel ->
+            let
+                -- (attempt to) get the id of the next level
+                levelId =
+                    RemoteData.toMaybe model.currentLevel
+                        |> Maybe.map (.id >> Level.incrementId)
+            in
+            case levelId of
+                Nothing ->
+                    -- if it fails, we do nothing.
+                    ( model, Cmd.none )
 
-
+                Just id ->
+                    -- if we did get an ID, increase it by one, then try to
+                    -- load the level
+                    -- resetting the number and moves is handled in the
+                    -- loadlevel message
+                    ( { model | moves = 0, currentLevel = RemoteData.Loading }
+                    , loadLevel id
+                    )
