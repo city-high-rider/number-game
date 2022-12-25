@@ -4,6 +4,12 @@
 module Pages.Home exposing (Model, Msg, init, update, view)
 
 import Browser.Navigation as Nav exposing (Key)
+import ColorScheme exposing (..)
+import Element exposing (alignLeft, alignRight, centerX, column, el, fill, layout, mouseOver, none, paragraph, rgb, row, text, width)
+import Element.Background
+import Element.Border
+import Element.Font exposing (color, size)
+import Element.Input exposing (button)
 import Html exposing (Html, button, div, h2, h3, p, text)
 import Html.Events exposing (onClick)
 import Route exposing (Route(..), pushUrl)
@@ -30,14 +36,44 @@ init navkey =
 
 view : Model -> Html Msg
 view _ =
-    div []
-        [ h2 [] [ text "Number game" ]
-        , h3 [] [ text "How to play : " ]
-
-        -- elm formmater turns this into a massive one line string
-        , p [] [ text "You are given a starting number and an ending number, as well as \n     buttons that perform arithmetic on your number. the goal is to get to the \n     ending number in the least amount of moves. There is a minimum amount of moves\n     required to pass the level." ]
-        , button [ onClick GotoLevelsPage ] [ text "View all levels" ]
-        ]
+    layout [ Element.Background.color ColorScheme.veryDark ] <|
+        column [ width fill ]
+            [ row [ centerX ]
+                [ paragraph [ Element.padding 10, color ColorScheme.red ]
+                    [ el [ size 35 ] (Element.text "Number game | Home") ]
+                ]
+            , paragraph [ Element.padding 20, color ColorScheme.light ]
+                [ el [ size 28 ] (Element.text "How to play: ")
+                , column [ Element.padding 10 ]
+                    [ Element.text "You are given a starting number and a goal number."
+                    , Element.text "You are also given a set of operations that you can perform on the number. The objective is to set your number equal to the goal number."
+                    , paragraph []
+                        [ Element.text "However, you only have a "
+                        , el [ color ColorScheme.red ]
+                            (Element.text "limited amount of moves")
+                        , Element.text " to finish the level, so think carefully!"
+                        ]
+                    ]
+                ]
+            , Element.Input.button [ Element.padding 20 ]
+                { onPress = Just GotoLevelsPage
+                , label =
+                    el
+                        [ Element.padding 6
+                        , color ColorScheme.red
+                        , size 22
+                        , Element.Background.color ColorScheme.neutral
+                        , Element.Border.solid
+                        , Element.Border.color ColorScheme.red
+                        , Element.Border.width 2
+                        , mouseOver
+                            [ color ColorScheme.neutral
+                            , Element.Background.color ColorScheme.red
+                            ]
+                        ]
+                        (Element.text "Play !")
+                }
+            ]
 
 
 
