@@ -43,9 +43,9 @@ view _ =
                     [ el [ size 35 ] (Element.text "Number game | Home") ]
                 ]
             , paragraph [ Element.padding 20, color ColorScheme.light ]
-                [ el [ size 28 ] (Element.text "How to play: ")
-                , column [ Element.padding 10 ]
-                    [ Element.text "You are given a starting number and a goal number."
+                [ column [ Element.padding 10 ]
+                    [ el [ size 28 ] (Element.text "How to play: ")
+                    , Element.text "You are given a starting number and a goal number."
                     , Element.text "You are also given a set of operations that you can perform on the number. The objective is to set your number equal to the goal number."
                     , paragraph []
                         [ Element.text "However, you only have a "
