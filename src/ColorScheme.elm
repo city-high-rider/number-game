@@ -1,4 +1,4 @@
-module ColorScheme exposing (dark, light, neutral, red, veryDark)
+module ColorScheme exposing (accent, dark, light, neutral, red, veryDark)
 
 import Element exposing (Color, rgb255)
 
@@ -26,3 +26,8 @@ neutral =
 red : Color
 red =
     rgb255 166 52 70
+
+
+accent : Color
+accent =
+    rgb255 252 247 94

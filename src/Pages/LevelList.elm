@@ -1,6 +1,10 @@
 module Pages.LevelList exposing (Model, Msg, init, update, view)
 
 import Browser.Navigation exposing (Key)
+import ColorScheme
+import Element exposing (centerX, centerY, column, fill, layout, paragraph, width)
+import Element.Background exposing (color)
+import Element.Font
 import ErrorViewing exposing (viewError)
 import Html exposing (Html, a, button, div, h3, p, table, td, text, th, tr)
 import Html.Attributes exposing (href)
@@ -43,7 +47,7 @@ view model =
                 ]
 
         Loading ->
-            h3 [] [ text "Loading levels, please wait..." ]
+            loadingView
 
         Success levels ->
             viewLevels levels
@@ -52,33 +56,65 @@ view model =
             viewError error
 
 
+loadingView : Html Msg
+loadingView =
+    layout [ Element.Background.color ColorScheme.veryDark ] <|
+        Element.row [ width fill ]
+            [ column [ centerX ]
+                [ paragraph
+                    [ Element.Font.color ColorScheme.red
+                    , centerX
+                    , Element.padding 10
+                    , Element.Font.size 25
+                    ]
+                    [ Element.text "Loading... please wait" ]
+                ]
+            ]
+
+
 viewLevels : List Level -> Html Msg
 viewLevels levels =
-    let
-        tableHeader =
-            tr []
-                [ th [] [ text "Level ID" ]
-                , th [] [ text "Difficulty" ]
+    Element.layout [ Element.Background.color ColorScheme.veryDark ] <|
+        Element.table
+            [ Element.Font.color ColorScheme.neutral
+            , Element.padding 10
+            , centerX
+            ]
+            { data = levels
+            , columns =
+                [ { header =
+                        paragraph [ Element.Font.color ColorScheme.red ]
+                            [ Element.text "Level ID" ]
+                  , width = fill
+                  , view =
+                        \level ->
+                            paragraph [ Element.padding 3 ]
+                                [ Element.text <| Level.levelIdToString level.id
+                                ]
+                  }
+                , { header =
+                        paragraph [ Element.Font.color ColorScheme.red ]
+                            [ Element.text "Level Difficulty " ]
+                  , width = fill
+                  , view =
+                        \level ->
+                            paragraph [ Element.padding 3 ]
+                                [ Element.text <| level.difficulty
+                                ]
+                  }
+                , { header = Element.none
+                  , width = fill
+                  , view =
+                        \level ->
+                            Element.link []
+                                { url = "levels/" ++ Level.levelIdToString level.id
+                                , label =
+                                    paragraph [ Element.Font.color ColorScheme.accent ]
+                                        [ Element.text "Play" ]
+                                }
+                  }
                 ]
-
-        -- if you check the operations decoder in src/Level, you will see
-        -- that it's possible for a level's operation list to be empty,
-        -- making it practically unbeatable. We want to filter out
-        -- any levels like this
-        filteredLevels =
-            List.filter isLevelOperationsNotEmpty levels
-    in
-    table []
-        (tableHeader :: List.map levelToTableRow filteredLevels)
-
-
-levelToTableRow : Level -> Html Msg
-levelToTableRow level =
-    tr []
-        [ td [] [ text (levelIdToString level.id) ]
-        , td [] [ text level.difficulty ]
-        , a [ href ("/levels/" ++ levelIdToString level.id) ] [ text "Play" ]
-        ]
+            }
 
 
 
