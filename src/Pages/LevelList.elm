@@ -11,6 +11,7 @@ import Html.Attributes exposing (href)
 import Html.Events exposing (onClick)
 import Http
 import Level exposing (Level, isLevelOperationsNotEmpty, levelIdToString, levelsDecoder)
+import LoadingScreen
 import RemoteData exposing (RemoteData(..), WebData)
 
 
@@ -47,29 +48,13 @@ view model =
                 ]
 
         Loading ->
-            loadingView
+            LoadingScreen.viewLoadingScreen
 
         Success levels ->
             viewLevels levels
 
         Failure error ->
             viewError error
-
-
-loadingView : Html Msg
-loadingView =
-    layout [ Element.Background.color ColorScheme.veryDark ] <|
-        Element.row [ width fill ]
-            [ column [ centerX ]
-                [ paragraph
-                    [ Element.Font.color ColorScheme.red
-                    , centerX
-                    , Element.padding 10
-                    , Element.Font.size 25
-                    ]
-                    [ Element.text "Loading... please wait" ]
-                ]
-            ]
 
 
 viewLevels : List Level -> Html Msg

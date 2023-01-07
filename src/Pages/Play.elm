@@ -4,12 +4,17 @@
 
 module Pages.Play exposing (..)
 
+import ColorScheme
+import Element exposing (centerX, column, fill, layout, paragraph, width)
+import Element.Background
+import Element.Font
 import ErrorViewing exposing (viewError)
 import Html exposing (Html, button, div, h2, h3, p, strong, text)
 import Html.Events exposing (onClick)
 import Http
 import Inscribed exposing (BindableFunction(..), Inscribed, bind, executeOperation, makeBindable)
 import Level exposing (Level, LevelId, levelDecoder, levelIdToString)
+import LoadingScreen
 import Operation exposing (Operation)
 import RemoteData exposing (RemoteData(..), WebData, isSuccess)
 
@@ -67,7 +72,7 @@ view model =
             h3 [] [ text "You haven't asked for a level to be loaded." ]
 
         ( Loading, _ ) ->
-            h3 [] [ text "Loading level... please wait" ]
+            LoadingScreen.viewLoadingScreen
 
         ( Failure reason, _ ) ->
             viewError reason
