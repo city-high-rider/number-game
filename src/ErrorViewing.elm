@@ -1,15 +1,31 @@
 module ErrorViewing exposing (httpErrorToString, viewError)
 
-import Html exposing (Html, div, h3, p, text)
+import ColorScheme
+import Element exposing (centerX, el, fill, layout, paragraph, text, width)
+import Element.Background
+import Element.Font
+import Html exposing (Html, div, h3, p)
 import Http
 
 
 viewError : Http.Error -> Html msg
 viewError error =
-    div []
-        [ h3 [] [ text "There was an error loading the content !" ]
-        , p [] [ text ("Reason : " ++ httpErrorToString error) ]
-        ]
+    let
+        errorText : String
+        errorText =
+            httpErrorToString error
+    in
+    layout [ Element.Background.color ColorScheme.veryDark ] <|
+        Element.column [ width fill ]
+            [ Element.row [ centerX ]
+                [ paragraph [ Element.Font.size 32 ]
+                    [ el [ Element.Font.color ColorScheme.accent ] (text "There was an error!")
+                    ]
+                ]
+            , paragraph [ Element.Font.size 25 ]
+                [ el [ Element.Font.color ColorScheme.light ] (text errorText)
+                ]
+            ]
 
 
 httpErrorToString : Http.Error -> String
