@@ -107,7 +107,7 @@ displayWinState level currentMoves currentNumber =
             if level.goalNumber == currentNumber && currentMoves <= level.availableMoves then
                 winScreen
 
-            else if currentMoves > level.availableMoves then
+            else if currentMoves >= level.availableMoves && level.goalNumber /= currentNumber then
                 failScreen
 
             else
@@ -167,8 +167,11 @@ winScreen =
 failScreen : Element Msg
 failScreen =
     Element.column []
-        [ Element.paragraph [ Element.Font.size 22 ]
-            [ el [] (Element.text "The level is no longer winnable") ]
+        [ Element.paragraph
+            [ Element.Font.size 22
+            , Element.Font.color ColorScheme.red
+            ]
+            [ el [] (Element.text "The level is no longer winnable, reload to try again.") ]
         ]
 
 
