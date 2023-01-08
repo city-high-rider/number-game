@@ -90,7 +90,7 @@ viewLevel : Level -> Model -> Inscribed Float -> Html Msg
 viewLevel level model currentNumber =
     Element.layout [ Element.Background.color ColorScheme.veryDark ] <|
         Element.column [ width fill, height fill ]
-            [ viewLevelInfo level (Inscribed.extractValue currentNumber) model.moves
+            [ viewLevelInfo level model.moves
             , actionHistory currentNumber model.operationError
             , Element.row [ width fill, spaceEvenly ]
                 [ displayButtons level.operations
@@ -160,7 +160,7 @@ winScreen =
                 , Element.Font.color ColorScheme.neutral
                 ]
             ]
-            { onPress = Nothing, label = buttonLabel }
+            { onPress = Just GotoNextLevel, label = buttonLabel }
         ]
 
 
@@ -178,8 +178,8 @@ displayButtons operations =
         List.map inscribedOperationToButton operations
 
 
-viewLevelInfo : Level -> Float -> Int -> Element msg
-viewLevelInfo level currentNumber movesLeft =
+viewLevelInfo : Level -> Int -> Element msg
+viewLevelInfo level movesLeft =
     let
         levelTitleText : String
         levelTitleText =
@@ -190,12 +190,22 @@ viewLevelInfo level currentNumber movesLeft =
             "Moves made : " ++ String.fromInt movesLeft ++ "/" ++ String.fromInt level.availableMoves
     in
     Element.row [ width fill, spaceEvenly, padding 10, Element.Font.size 30 ]
-        [ paragraph [ Element.Font.color ColorScheme.red ]
-            [ el [] (Element.text levelTitleText)
+        [ Element.link
+            [ Element.Border.width 2
+            , Element.Border.color ColorScheme.red
+            , Element.Background.color ColorScheme.neutral
+            , Element.Font.color ColorScheme.red
+            , Element.padding 5
+            , mouseOver
+                [ Element.Background.color ColorScheme.red
+                , Element.Font.color ColorScheme.neutral
+                ]
             ]
-        , paragraph [ Element.Font.alignRight, Element.Font.color ColorScheme.neutral ]
-            [ el [] (Element.text movesLeftText)
-            ]
+            { url = "/levels"
+            , label = el [] (Element.text "<- Back")
+            }
+        , el [ Element.Font.color ColorScheme.red ] (Element.text levelTitleText)
+        , el [ Element.Font.alignRight, Element.Font.color ColorScheme.neutral ] (Element.text movesLeftText)
         ]
 
 
