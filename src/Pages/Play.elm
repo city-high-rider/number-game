@@ -5,9 +5,11 @@
 module Pages.Play exposing (..)
 
 import ColorScheme
-import Element exposing (centerX, column, fill, layout, paragraph, width)
+import Element exposing (Element, alignTop, centerX, column, el, fill, fillPortion, height, layout, mouseOver, padding, paddingEach, paragraph, spaceEvenly, width)
 import Element.Background
+import Element.Border
 import Element.Font
+import Element.Input
 import ErrorViewing exposing (viewError)
 import Html exposing (Html, button, div, h2, h3, p, strong, text)
 import Html.Events exposing (onClick)
@@ -75,7 +77,7 @@ view model =
             LoadingScreen.viewLoadingScreen
 
         ( Failure reason, _ ) ->
-            viewError reason
+            ErrorViewing.viewError reason
 
         ( Success level, Success number ) ->
             viewLevel level model number
@@ -86,71 +88,128 @@ view model =
 
 viewLevel : Level -> Model -> Inscribed Float -> Html Msg
 viewLevel level model currentNumber =
-    div []
-        [ h2 [] [ text ("Level " ++ levelIdToString level.id) ]
-        , h3 [] [ text ("Goal number : " ++ String.fromFloat level.goalNumber) ]
-        , h3 [] [ text ("Current number : " ++ String.fromFloat (Inscribed.extractValue currentNumber)) ]
-        , viewOperationError model.operationError
-        , displayWinCondition level model.moves currentNumber
-        , operationButtons level.operations
-        , actionHistory currentNumber
+    Element.layout [ Element.Background.color ColorScheme.veryDark ] <|
+        Element.column [ width fill, height fill ]
+            [ viewLevelInfo level (Inscribed.extractValue currentNumber) model.moves
+            , actionHistory currentNumber model.operationError
+            , Element.row [ width fill, spaceEvenly ]
+                [ displayButtons level.operations
+                , displayWinState level model.moves (Inscribed.extractValue currentNumber)
+                ]
+            ]
+
+
+displayWinState : Level -> Int -> Float -> Element Msg
+displayWinState level currentMoves currentNumber =
+    let
+        screen : Element Msg
+        screen =
+            if level.goalNumber == currentNumber && currentMoves <= level.availableMoves then
+                winScreen
+
+            else if currentMoves > level.availableMoves then
+                failScreen
+
+            else
+                Element.none
+    in
+    Element.row
+        [ padding 5
+        , height fill
+        , width <| fillPortion 2
+        , Element.Border.width 2
+        , Element.Border.color ColorScheme.neutral
+        ]
+        [ Element.column [ width <| fillPortion 1, Element.Font.size 25 ]
+            [ paragraph [ Element.Font.color ColorScheme.red ]
+                [ el [] (Element.text ("Goal : " ++ String.fromFloat level.goalNumber))
+                ]
+            , paragraph [ Element.Font.color ColorScheme.light ]
+                [ el [] (Element.text ("Current : " ++ String.fromFloat currentNumber))
+                ]
+            ]
+        , screen
         ]
 
 
-viewOperationError : Maybe String -> Html Msg
+winScreen : Element Msg
+winScreen =
+    let
+        buttonLabel =
+            el [ padding 5, centerX ]
+                (Element.text "Next Level ->")
+    in
+    Element.column [ width fill ]
+        [ Element.paragraph
+            [ Element.Font.size 22
+            , Element.Font.color ColorScheme.light
+            , padding 5
+            , centerX
+            , width fill
+            ]
+            [ el [] (Element.text "You won!") ]
+        , Element.Input.button
+            [ Element.Font.color ColorScheme.red
+            , Element.Background.color ColorScheme.neutral
+            , Element.Border.width 2
+            , Element.Border.color ColorScheme.red
+            , padding 5
+            , width fill
+            , mouseOver
+                [ Element.Background.color ColorScheme.red
+                , Element.Font.color ColorScheme.neutral
+                ]
+            ]
+            { onPress = Nothing, label = buttonLabel }
+        ]
+
+
+failScreen : Element Msg
+failScreen =
+    Element.column []
+        [ Element.paragraph [ Element.Font.size 22 ]
+            [ el [] (Element.text "The level is no longer winnable") ]
+        ]
+
+
+displayButtons : List (Inscribed Operation) -> Element Msg
+displayButtons operations =
+    Element.column [ padding 5, width <| fillPortion 1, Element.scrollbarY ] <|
+        List.map inscribedOperationToButton operations
+
+
+viewLevelInfo : Level -> Float -> Int -> Element msg
+viewLevelInfo level currentNumber movesLeft =
+    let
+        levelTitleText : String
+        levelTitleText =
+            "Level " ++ levelIdToString level.id ++ " | " ++ level.difficulty
+
+        movesLeftText : String
+        movesLeftText =
+            "Moves made : " ++ String.fromInt movesLeft ++ "/" ++ String.fromInt level.availableMoves
+    in
+    Element.row [ width fill, spaceEvenly, padding 10, Element.Font.size 30 ]
+        [ paragraph [ Element.Font.color ColorScheme.red ]
+            [ el [] (Element.text levelTitleText)
+            ]
+        , paragraph [ Element.Font.alignRight, Element.Font.color ColorScheme.neutral ]
+            [ el [] (Element.text movesLeftText)
+            ]
+        ]
+
+
+viewOperationError : Maybe String -> Element Msg
 viewOperationError err =
     case err of
         Nothing ->
-            div [] []
+            Element.none
 
         Just reason ->
-            div []
-                [ h3 [] [ text "The operation failed !" ]
-                , p [] [ text ("Reason : " ++ reason) ]
+            Element.column []
+                [ Element.paragraph [] [ el [] (Element.text "The operation failed !") ]
+                , Element.paragraph [] [ el [] (Element.text ("Reason : " ++ reason)) ]
                 ]
-
-
-displayWinCondition : Level -> Int -> Inscribed Float -> Html Msg
-displayWinCondition level currentMoves (Inscribed.InscribedData currentNumber _) =
-    if currentNumber == level.goalNumber && currentMoves <= level.availableMoves then
-        div []
-            [ displayMoves currentMoves
-                level.availableMoves
-            , displayWinScreen
-            ]
-
-    else if currentMoves > level.availableMoves then
-        div []
-            [ displayMoves currentMoves
-                level.availableMoves
-            , displayLoseScreen
-            ]
-
-    else
-        displayMoves currentMoves level.availableMoves
-
-
-displayMoves : Int -> Int -> Html Msg
-displayMoves currentMoves allowedMoves =
-    div []
-        [ strong [] [ text ("Remaining moves : " ++ String.fromInt (allowedMoves - currentMoves)) ]
-        ]
-
-
-displayWinScreen : Html Msg
-displayWinScreen =
-    div []
-        [ h3 [] [ text "You won!" ]
-        , button [ onClick GotoNextLevel ] [ text "Next ->" ]
-        ]
-
-
-displayLoseScreen : Html Msg
-displayLoseScreen =
-    div []
-        [ h3 [] [ text "You have no more moves left" ]
-        , p [] [ text "Reload the page to retry" ]
-        ]
 
 
 
@@ -158,25 +217,62 @@ displayLoseScreen =
 -- them all into buttons for display
 
 
-operationButtons : List (Inscribed Operation) -> Html Msg
-operationButtons operations =
-    div [] (List.map inscribedOperationToButton operations)
-
-
-inscribedOperationToButton : Inscribed Operation -> Html Msg
+inscribedOperationToButton : Inscribed Operation -> Element Msg
 inscribedOperationToButton inOp =
     -- for the text, we just extract the "name" of the function
     -- when the button is clicked, we send the operation with the name
     -- to the update function, so that we can change the current number and
     -- log the change
-    button [ onClick (PerformOperation inOp) ] [ text <| Inscribed.extractMessage inOp ]
+    Element.Input.button
+        [ Element.Border.width 2
+        , Element.Border.color ColorScheme.red
+        , Element.Background.color ColorScheme.neutral
+        , Element.Font.color ColorScheme.red
+        , mouseOver
+            [ Element.Background.color ColorScheme.red
+            , Element.Font.color ColorScheme.neutral
+            ]
+        , width fill
+        ]
+        { onPress = Just <| PerformOperation inOp
+        , label =
+            el [ padding 5, centerX ]
+                (Element.text <| Inscribed.extractMessage inOp)
+        }
 
 
-actionHistory : Inscribed Float -> Html Msg
-actionHistory inFloat =
-    div []
-        [ h3 [] [ text "Your actions so far : " ]
-        , p [] [ text <| Inscribed.extractMessage inFloat ]
+actionHistory : Inscribed Float -> Maybe String -> Element Msg
+actionHistory inFloat operationError =
+    let
+        -- We want to show the error, if there is one
+        textToShow : String
+        textToShow =
+            Maybe.withDefault (Inscribed.extractMessage inFloat) operationError
+
+        heading : Element msg
+        heading =
+            case operationError of
+                Nothing ->
+                    paragraph [ Element.Font.color ColorScheme.light ] [ el [] (Element.text "Your actions: ") ]
+
+                Just _ ->
+                    paragraph [ Element.Font.color ColorScheme.red ] [ el [] (Element.text "Error!") ]
+    in
+    Element.column [ width fill, paddingEach { top = 80, bottom = 0, left = 5, right = 5 } ]
+        [ Element.row [ centerX ]
+            [ heading ]
+        , Element.row
+            [ width fill
+            , height <| Element.px 250
+            , padding 10
+            , Element.Border.width 2
+            , Element.Border.color ColorScheme.accent
+            , Element.scrollbarY
+            ]
+            [ paragraph [ Element.Font.color ColorScheme.neutral, alignTop ]
+                [ el [] (Element.text <| textToShow)
+                ]
+            ]
         ]
 
 
